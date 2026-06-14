@@ -4,11 +4,13 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ShoppingCart, Sun, Moon, Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const [cartCount] = useState(0);
+    const pathname = usePathname();
 
     useEffect(() => {
         setMounted(true);
@@ -34,7 +36,12 @@ const Navbar = () => {
                     >
                         {navLinks.map((link) => (
                             <li key={link.href}>
-                                <Link href={link.href}>{link.label}</Link>
+                                <Link
+                                    href={link.href}
+                                    className={pathname === link.href ? "text-primary font-semibold" : ""}
+                                >
+                                    {link.label}
+                                </Link>
                             </li>
                         ))}
                     </ul>
@@ -53,7 +60,10 @@ const Navbar = () => {
                         <li key={link.href}>
                             <Link
                                 href={link.href}
-                                className="font-medium hover:text-primary transition-colors"
+                                className={`font-medium transition-colors ${pathname === link.href
+                                        ? "text-primary font-semibold"
+                                        : "hover:text-primary"
+                                    }`}
                             >
                                 {link.label}
                             </Link>
