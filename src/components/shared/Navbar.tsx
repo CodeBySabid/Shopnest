@@ -1,16 +1,19 @@
-"use client"
+"use client";
 
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ShoppingCart, Sun, Moon, Menu } from "lucide-react";
+import { ShoppingCart, Sun, Moon, Menu, LogOut, User } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 
-const Navbar = () => {
+export default function Navbar() {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const [cartCount] = useState(0);
     const pathname = usePathname();
+    const { data: session } = useSession();
 
     useEffect(() => {
         setMounted(true);
@@ -21,7 +24,8 @@ const Navbar = () => {
         { href: "/products", label: "Products" },
         { href: "/about", label: "About" },
         { href: "/contact", label: "Contact" },
-    ]
+    ];
+
     return (
         <nav className="navbar bg-base-100 shadow-md sticky top-0 z-50">
             {/* Mobile Menu */}
@@ -38,7 +42,10 @@ const Navbar = () => {
                             <li key={link.href}>
                                 <Link
                                     href={link.href}
-                                    className={pathname === link.href ? "text-primary font-semibold" : ""}
+                                    className={`rounded-lg px-3 py-2 transition-all ${pathname === link.href
+                                            ? "bg-primary text-primary-content"
+                                            : "hover:bg-base-200"
+                                        }`}
                                 >
                                     {link.label}
                                 </Link>
@@ -91,19 +98,58 @@ const Navbar = () => {
                         <ShoppingCart size={20} />
                         {cartCount > 0 && (
                             <span className="badge badge-sm badge-primary indicator-item">
-                                {cartCount}
+                                {cartCount > 99 ? "99+" : cartCount}
                             </span>
                         )}
                     </div>
                 </Link>
 
-                {/* Login Button */}
-                <Link href="/login" className="btn btn-primary btn-sm">
-                    Login
-                </Link>
+                {/* User Section */}
+                {session ? (
+                    <div className="dropdown dropdown-end">
+                        <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+                            <div className="w-9 rounded-full">
+                                <Image
+                                    src={session.user?.image || "/default-avatar.png"}
+                                    alt={session.user?.name || "User"}
+                                    width={36}
+                                    height={36}
+                                    className="rounded-full"
+                                />
+                            </div>
+                        </label>
+                        <ul
+                            tabIndex={0}
+                            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+                        >
+                            <li className="menu-title px-4 py-2">
+                                <p className="font-semibold">{session.user?.name}</p>
+                                <p className="text-xs text-base-content/60">
+                                    {session.user?.role}
+                                </p>
+                            </li>
+                            <div className="divider my-0"></div>
+                            <li>
+                                <Link href="/dashboard">
+                                    <User size={16} /> Dashboard
+                                </Link>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => signOut()}
+                                    className="text-error"
+                                >
+                                    <LogOut size={16} /> Logout
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                ) : (
+                    <Link href="/login" className="btn btn-primary btn-sm">
+                        Login
+                    </Link>
+                )}
             </div>
         </nav>
     );
-};
-
-export default Navbar;
+}
