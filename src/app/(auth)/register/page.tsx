@@ -55,10 +55,35 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      
+      let imageUrl = "";
+      if (data.image && data.image[0]) {
+        imageUrl = await uploadImageToCloudinary(data.image[0]);
+      }
+
+      const res = await axiosPublic.post("/api/users/register", {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        address: data.address,
+        image: imageUrl,
+      })
+
+      if (res.data.success) {
+        router.push("/login?registered=true");
+      }
     }
     catch (err: unknown) {
-      
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as {
+          response?: { data?: { message?: string } };
+        };
+        setError(
+          axiosErr.response?.data?.message || "Registration failed"
+        );
+      } else {
+        setError("Something went wrong");
+      }
     } finally {
       setLoading(false);
     }
