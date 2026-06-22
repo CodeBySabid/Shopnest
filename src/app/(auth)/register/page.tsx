@@ -8,7 +8,6 @@ import { ShoppingBag, Eye, EyeOff, Upload } from "lucide-react";
 import uploadImageToCloudinary from "@/lib/uploadImage";
 import axiosPublic from "@/lib/axios";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 
 type RegisterFormData = {
   name: string;
@@ -27,8 +26,6 @@ export default function RegisterPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-
 
   const {
     register,
